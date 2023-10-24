@@ -43,17 +43,27 @@ public class AutonomousBase extends LinearOpMode {
     public static void drive(double inches){
         //a variable telling the desired encoder value
         int distance = (int)(inches * encoderPerRotation / inchesPerRotation);
+
         //runs the motors to the desired position
         frontLeftDrive.setTargetPosition(distance);
         frontRightDrive.setTargetPosition(distance);
         backLeftDrive.setTargetPosition(distance);
         backRightDrive.setTargetPosition(distance);
+
+        //resets the encoders
+        frontLeftDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        frontRightDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        backLeftDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        backRightDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     }
 
     //Rotates the robot a set number of degrees
     public static void turn(double degrees){
         //a variable telling the rotation the robot wants to go to in radians
         double distance = degrees / 57.2957795131;
+
+        //runs a loop until it reaches the desired location that slowly turns the robot
+
     }
 
 }
