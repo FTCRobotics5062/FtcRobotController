@@ -59,7 +59,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 @Autonomous(name="Red Warehouse", group="Autonomous")
 @Disabled
-public class RedWarehouse extends LinearOpMode {
+public class OldWarehouse extends LinearOpMode {
 
     /* Declare OpMode members. */
     private ElapsedTime runtime = new ElapsedTime();
