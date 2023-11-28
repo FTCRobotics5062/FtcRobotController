@@ -30,6 +30,7 @@
 package org.firstinspires.ftc.teamcode.Old;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -63,7 +64,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
  */
 
 @Autonomous(name="Parking_Autonomous_Red", group="Autonomous")
-//@Disabled
+@Disabled
 public class Parking_Autonomous_Right extends LinearOpMode {
 
     // Declare OpMode members for each of the 4 motors.

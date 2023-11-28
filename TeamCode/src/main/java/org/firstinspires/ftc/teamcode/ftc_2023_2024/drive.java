@@ -62,7 +62,12 @@ public class drive extends OpMode{
     public DcMotor  frontRightDrive  = null;
     public DcMotor  backLeftDrive    = null;
     public DcMotor  backRightDrive   = null;
+    public DcMotor  lift             = null;
     public IMU      imu              = null;
+    public DcMotor    clawAngle        = null;
+    public Servo    claw             = null;
+    public double      liftPosition     = 20;
+    public int      maxLiftPosition  = 200;
 
     /*
      * Code to run ONCE when the driver hits INIT
@@ -74,6 +79,18 @@ public class drive extends OpMode{
         frontRightDrive = hardwareMap.get(DcMotor.class, "frontRightDrive");
         backLeftDrive   = hardwareMap.get(DcMotor.class, "backLeftDrive");
         backRightDrive  = hardwareMap.get(DcMotor.class, "backRightDrive");
+
+        //sets the servos
+        clawAngle       = hardwareMap.get(DcMotor.class, "clawAngle");
+        claw            = hardwareMap.get(Servo.class, "claw");
+
+        //sets the lift motor
+        lift            = hardwareMap.get(DcMotor.class, "lift");
+        //allows the motor to run to a set motor position
+        lift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        clawAngle.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        //lift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        //clawAngle.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
         // To drive forward, most robots need the motor on one side to be reversed, because the axles point in opposite directions.
         // Pushing the left and right sticks forward MUST make robot go forward. So adjust these two lines based on your first test drive.
@@ -95,7 +112,7 @@ public class drive extends OpMode{
                 RevHubOrientationOnRobot.UsbFacingDirection.FORWARD));
 
         // Send telemetry message to signify robot waiting;
-        telemetry.addData(">", "Robot Ready.  Press Play.");    //
+        telemetry.addData(">", "Robot Ready.  Press Play.");    //`
     }
 
     /*
@@ -207,12 +224,54 @@ public class drive extends OpMode{
         //}
         //strafing code
         double strafe = gamepad1.left_stick_x;
-        if(strafe > .1 || strafe < -.1){
+        if(Math.abs(strafe) > Math.abs(drive)){
             frontLeftDrive.setPower(strafe);
             frontRightDrive.setPower(-strafe);
             backLeftDrive.setPower(-strafe);
             backRightDrive.setPower(strafe);
         }
+
+        //arm code
+        liftPosition += (gamepad2.left_stick_y);
+        //limits the arm position
+        if(liftPosition > maxLiftPosition){
+            liftPosition = maxLiftPosition;
+        }
+        else if(liftPosition < 25){
+            liftPosition = 25;
+        }
+        lift.setTargetPosition((int)liftPosition);
+        lift.setPower(0.5);
+        //makes the claw angle the correct point for
+        if(lift.getCurrentPosition() >= maxLiftPosition/2){
+            clawAngle.setTargetPosition(lift.getCurrentPosition());
+            clawAngle.setPower(0.5);
+        }
+
+        else{
+            //claw code
+            //lifts the claw up
+            if(gamepad2.right_trigger != 0){
+                if(clawAngle.getCurrentPosition() == 0){
+                    clawAngle.setTargetPosition(90);
+                    clawAngle.setPower(0.5);
+                }
+                else{
+                    clawAngle.setTargetPosition(0);
+                    clawAngle.setPower(0.5);
+                }
+            }
+        }
+        //picks up and lets go of pixel
+        if(gamepad2.right_bumper){
+            if(claw.getPosition() == 0){
+                claw.setPosition(100);
+            }
+            else{
+                claw.setPosition(0);
+            }
+        }
+
 
         //Gotten from Game Manual 0
         // This button choice was made so that it is hard to hit on accident,

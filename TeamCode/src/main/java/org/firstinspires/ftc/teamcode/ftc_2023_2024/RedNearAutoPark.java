@@ -29,6 +29,7 @@ package org.firstinspires.ftc.teamcode.ftc_2023_2024;/* Copyright (c) 2017 FIRST
 
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
@@ -52,7 +53,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
  */
 
 @Autonomous(name="Robot: AutoPark", group="Robot")
-//@Disabled
+@Disabled
 public class RedNearAutoPark extends LinearOpMode {
 
     DcMotor frontLeftDrive  = null;
