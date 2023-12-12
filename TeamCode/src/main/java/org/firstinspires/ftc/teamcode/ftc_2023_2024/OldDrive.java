@@ -29,16 +29,11 @@ package org.firstinspires.ftc.teamcode.ftc_2023_2024;/* Copyright (c) 2017 FIRST
 
 
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.Servo;
-import com.qualcomm.robotcore.util.Range;
-
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 
 /*
  * This OpMode executes a Tank Drive control TeleOp a direct drive robot
@@ -53,31 +48,22 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
  * Remove or comment out the @Disabled line to add this OpMode to the Driver Station OpMode list
  */
 
-@TeleOp(name="Robot: drive", group="Robot")
+@TeleOp(name="Robot: OldDrive", group="Robot")
 //@Disabled
-public class drive extends OpMode{
+public class OldDrive extends OpMode{
 
     /* Declare OpMode members. */
     public DcMotor  frontLeftDrive   = null;
     public DcMotor  frontRightDrive  = null;
     public DcMotor  backLeftDrive    = null;
     public DcMotor  backRightDrive   = null;
-    public DcMotor  leftLift         = null;
-    public DcMotor  rightLift        = null;
+    public DcMotor  lift             = null;
     public IMU      imu              = null;
-    public DcMotor    clawAngle      = null;
+    public DcMotor    clawAngle        = null;
     public Servo    claw             = null;
     public double      liftPosition     = 20;
+    public int      maxLiftPosition  = 200;
 
-
-    //an enum to limit options of lift state, used for keeping lift position
-    public enum LiftState{
-        MOVING,
-        STOPPED
-    };
-
-    public LiftState liftState;
-    public int currentLiftPosition;
     /*
      * Code to run ONCE when the driver hits INIT
      */
@@ -89,23 +75,17 @@ public class drive extends OpMode{
         backLeftDrive   = hardwareMap.get(DcMotor.class, "backLeftDrive");
         backRightDrive  = hardwareMap.get(DcMotor.class, "backRightDrive");
 
-
-
-
-
         //sets the servos
         clawAngle       = hardwareMap.get(DcMotor.class, "clawAngle");
         claw            = hardwareMap.get(Servo.class, "claw");
 
         //sets the lift motor
-        leftLift = hardwareMap.get(DcMotor.class, "leftLift");
-        rightLift = hardwareMap.get(DcMotor.class, "rightLift");
+        lift            = hardwareMap.get(DcMotor.class, "lift");
         //allows the motor to run to a set motor position
 
+        //lift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        //lift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         //clawAngle.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-
-        //sets starting lift state
-        liftState = LiftState.STOPPED;
 
         // To drive forward, most robots need the motor on one side to be reversed, because the axles point in opposite directions.
         // Pushing the left and right sticks forward MUST make robot go forward. So adjust these two lines based on your first test drive.
@@ -115,8 +95,7 @@ public class drive extends OpMode{
         backLeftDrive.setDirection(DcMotor.Direction.REVERSE);
         backRightDrive.setDirection(DcMotor.Direction.FORWARD);
 
-        leftLift.setDirection(DcMotor.Direction.REVERSE);
-        rightLift.setDirection(DcMotor.Direction.REVERSE);
+lift.setDirection(DcMotor.Direction.REVERSE);
         //gotten from Game Manual 0
         // Retrieve the IMU from the hardware map
 
@@ -135,14 +114,14 @@ public class drive extends OpMode{
     /*
      * Code to run REPEATEDLY after the driver hits INIT, but before they hit PLAY
      */
-    //@Override
+    @Override
     public void init_loop() {
     }
 
     /*
      * Code to run ONCE when the driver hits PLAY
      */
-    //@Override
+    @Override
     public void start() {
 
         //Gotten from Game Manual 0
@@ -253,72 +232,11 @@ public class drive extends OpMode{
 
 
         //arm code
-
         //
-//        if(Math.abs(gamepad2.left_stick_y) > .05){
-//            liftState = LiftState.MOVING;
-//        }
-//        else{
-//            liftState = LiftState.STOPPED;
-//            //it uses the right lift encoder value because the left lift's encoder is broken
-//            currentLiftPosition = rightLift.getCurrentPosition();
-//        }
-
-
-        switch(liftState){
-            //holds lift at position when stopped
-            case STOPPED:
-                telemetry.addLine("Arm is Stopped");
-                telemetry.addData("right Target Position", rightLift.getTargetPosition());
-                telemetry.addData("left Target Position", leftLift.getTargetPosition());
-                telemetry.addData("right Current Position", rightLift.getCurrentPosition());
-                telemetry.addData("left Current Position", leftLift.getCurrentPosition());
-                telemetry.addData("variable lift position", currentLiftPosition);
-                telemetry.addData("right Run Mode", rightLift.getMode());
-                telemetry.addData("left Run Mode", leftLift.getMode());
-                telemetry.update();
-
-                if(Math.abs(gamepad2.left_stick_y) > .05){
-                    liftState = liftState.MOVING;
-                    rightLift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-                    leftLift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-                    rightLift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-                    leftLift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-                }
-                break;
-            case MOVING:
-                telemetry.addLine("Arm is Moving");
-                telemetry.addData("right motor power: ", rightLift.getPower());
-                telemetry.addData("left motor power: ", leftLift.getPower());
-                telemetry.addData("right Current Position", rightLift.getCurrentPosition());
-                telemetry.addData("left Current Position", leftLift.getCurrentPosition());
-                telemetry.addData("variable lift position", currentLiftPosition);
-                telemetry.addData("right Run Mode", rightLift.getMode());
-                telemetry.addData("left Run Mode", leftLift.getMode());
-                telemetry.update();
-//                rightLift.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-//                leftLift.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-
-                rightLift.setPower(gamepad2.left_stick_y);
-                leftLift.setPower(gamepad2.left_stick_y);
-                if(Math.abs(gamepad2.left_stick_y) <= .05){
-                    liftState = liftState.STOPPED;
-                    currentLiftPosition = rightLift.getCurrentPosition();
-                    rightLift.setTargetPosition(currentLiftPosition);
-                    leftLift.setTargetPosition(currentLiftPosition);
-                    rightLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                    leftLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-
-                    rightLift.setPower(.2);
-                    leftLift.setPower(.2);
-                }
-                break;
-        }
 
 
 
-
-//        //stops the lift from going to far from current position
+        //stops the lift from going to far from current position
 //        if(Math.abs(liftPosition -= (gamepad2.left_stick_y)) > Math.abs(lift.getCurrentPosition()+10)){
 //            liftPosition -= (gamepad2.left_stick_y);
 //        }

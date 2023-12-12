@@ -35,14 +35,13 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-@Autonomous(name="Robot: RedAutonomous", group="Robot")
+@Autonomous(name="Robot: BasicAutonomous", group="Robot")
 //@Disabled
-public class RedAutonomous extends AutonomousBase {
+public class BasicAutonomous extends AutonomousBase {
     public void runOpMode() {
         waitForStart();
         setup();
-        placePixel("red");
-        driveToDistance(1);
+        drive(30);
         stop();
     }
 }

@@ -108,6 +108,9 @@ public class AutonomousBase extends LinearOpMode {
 //        backLeftDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 //        backRightDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 //        telemetry.update();
+        while(frontLeftDrive.isBusy()){
+            sleep(100);
+        }
         sleep(1000);
     }
 
@@ -179,19 +182,19 @@ public class AutonomousBase extends LinearOpMode {
         returns[0] = turn(-30, true);
 
         //checks to see if the left position reads closer. If it does, it is likely where the prop is -- position 1
-        double temp = turn(-90, true);
-        if(returns[0] > temp){
-            returns[0] = temp;
-            returns[1] = 1;
-        }
-
-        //checks to see if the right position reads closer. If it does, it is likely where the prop is -- position 3
-        turn(120, false);
-        temp = turn(90, true);
-        if(returns[0] > temp){
-            returns[0] = temp;
-            returns[1] = 3;
-        }
+//        double temp = turn(-90, true);
+//        if(returns[0] > temp){
+//            returns[0] = temp;
+//            returns[1] = 1;
+//        }
+//
+//        //checks to see if the right position reads closer. If it does, it is likely where the prop is -- position 3
+//        turn(120, false);
+//        temp = turn(90, true);
+//        if(returns[0] > temp){
+//            returns[0] = temp;
+//            returns[1] = 3;
+//        }
         return returns;
     }
 
@@ -206,25 +209,25 @@ public class AutonomousBase extends LinearOpMode {
         drive(36);
         double[] position = findProp();
         //ensures that it doesn't run if the distance sensor scanned an unreasonable distance
-        if (position[0] < 20){
-            //turns to the correct position
-            if(position[1] == 1){
-                turn(-180 * direction, false);
-            }
-            else if(position[1] == 2){
-                turn(-90 * direction, false);
-            }
-            //drives the previously scanned distance to the tape
-            drive(position[0]);
-            //returns to facing backstage
-            drive(-position[0]);
-            if(position[1] == 1){
-                turn(180 * direction, false);
-            }
-            else if(position[1] == 2){
-                turn(90 * direction, false);
-            }
-        }
+//        if (position[0] < 20){
+//            //turns to the correct position
+//            if(position[1] == 1){
+//                turn(-180 * direction, false);
+//            }
+//            else if(position[1] == 2){
+//                turn(-90 * direction, false);
+//            }
+//            //drives the previously scanned distance to the tape
+//            drive(position[0]);
+//            //returns to facing backstage
+//            drive(-position[0]);
+//            if(position[1] == 1){
+//                turn(180 * direction, false);
+//            }
+//            else if(position[1] == 2){
+//                turn(90 * direction, false);
+//            }
+//        }
     }
 
     //drives the robot until it is a set distance from a wall
