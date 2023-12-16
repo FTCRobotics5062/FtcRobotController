@@ -69,6 +69,8 @@ public class drive extends OpMode{
     public Servo    claw             = null;
     public double      liftPosition     = 20;
 
+    public boolean   clawJustChanged  = false;
+
 
     //an enum to limit options of lift state, used for keeping lift position
     public enum LiftState{
@@ -281,9 +283,9 @@ public class drive extends OpMode{
                 if(Math.abs(gamepad2.left_stick_y) > .05){
                     liftState = liftState.MOVING;
                     rightLift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-                    leftLift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                    //leftLift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
                     rightLift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-                    leftLift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                    //leftLift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
                 }
                 break;
             case MOVING:
@@ -303,18 +305,38 @@ public class drive extends OpMode{
                 leftLift.setPower(gamepad2.left_stick_y);
                 if(Math.abs(gamepad2.left_stick_y) <= .05){
                     liftState = liftState.STOPPED;
-                    currentLiftPosition = rightLift.getCurrentPosition();
-                    rightLift.setTargetPosition(currentLiftPosition);
-                    leftLift.setTargetPosition(currentLiftPosition);
-                    rightLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                    leftLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                    //currentLiftPosition = rightLift.getCurrentPosition();
+                    //rightLift.setTargetPosition(currentLiftPosition);
+                    //leftLift.setTargetPosition(currentLiftPosition);
+                    //rightLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                    //leftLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
-                    rightLift.setPower(.2);
-                    leftLift.setPower(.2);
+                    rightLift.setPower(/*.2*/ 0);
+                    leftLift.setPower(/*.2*/ 0);
+
                 }
                 break;
         }
 
+        //controls the claw angle
+        clawAngle.setPower(gamepad2.right_stick_y);
+
+        //spins the claw wheels
+        if(gamepad2.right_bumper/* && !clawJustChanged*/){
+            if(claw.getPosition() != .4){
+                claw.setPosition(.4);
+                //clawJustChanged = true;
+            }
+            else{
+                claw.setPosition(0);
+                //clawJustChanged = true;
+            }
+        }
+
+        //clawJustChanged makes claw wheels only turn when bumper is first pressed
+        /*if(clawJustChanged && !gamepad2.right_bumper){
+            clawJustChanged = false;
+        }*/
 
 
 
