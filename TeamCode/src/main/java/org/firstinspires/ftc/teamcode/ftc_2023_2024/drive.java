@@ -245,10 +245,10 @@ public class drive extends OpMode{
             double turn = gamepad1.right_stick_x;
 
             //drives and turns the robot
-            frontLeftDrive.setPower((-drive + turn)*.9  );
-            frontRightDrive.setPower((-drive - turn)*.2);
+            frontLeftDrive.setPower((-drive + turn)*.9);
+            frontRightDrive.setPower((-drive - turn)*.9);
             backLeftDrive.setPower((-drive + turn)*.9);
-            backRightDrive.setPower((- drive - turn)*.2);
+            backRightDrive.setPower((- drive - turn)*.9);
         //}
         //strafing code
         double strafe = gamepad1.left_stick_x;
