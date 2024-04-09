@@ -246,8 +246,8 @@ public class drive extends OpMode{
 
             //drives and turns the robot
             frontLeftDrive.setPower((-drive + turn)*.9  );
-            frontRightDrive.setPower((-drive - turn)*.9);
-            backLeftDrive.setPower((-drive + turn)*.2);
+            frontRightDrive.setPower((-drive - turn)*.2);
+            backLeftDrive.setPower((-drive + turn)*.9);
             backRightDrive.setPower((- drive - turn)*.2);
         //}
         //strafing code

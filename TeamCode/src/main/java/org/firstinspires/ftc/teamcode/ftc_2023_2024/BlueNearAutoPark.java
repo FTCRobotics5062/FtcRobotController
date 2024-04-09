@@ -33,67 +33,31 @@ import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
-/*
- * This OpMode illustrates the concept of driving a path based on time.
- * The code is structured as a LinearOpMode
- *
- * The code assumes that you do NOT have encoders on the wheels,
- *   otherwise you would use: RobotAutoDriveByEncoder;
- *
- *   The desired path in this example is:
- *   - Drive forward for 3 seconds
- *   - Spin right for 1.3 seconds
- *   - Drive Backward for 1 Second
- *
- *  The code is written in a simple form with no optimizations.
- *  However, there are several ways that this type of sequence could be streamlined,
- *
- * Use Android Studio to Copy this Class, and Paste it into your team's code folder with a new name.
- * Remove or comment out the @Disabled line to add this OpMode to the Driver Station OpMode list
- */
 
 @Autonomous(name="Robot: BlueNearAutoPark", group="Robot")
-@Disabled
-public class BlueNearAutoPark extends LinearOpMode {
 
-    DcMotor frontLeftDrive  = null;
-    DcMotor frontRightDrive = null;
-    DcMotor backLeftDrive   = null;
-    DcMotor backRightDrive  = null;
+public class BlueNearAutoPark extends BasicAutonomous {
 
-
-    @Override
     public void runOpMode() {
-        // Define and Initialize Motors
-        frontLeftDrive  = hardwareMap.get(DcMotor.class, "frontLeftDrive");
-        frontRightDrive = hardwareMap.get(DcMotor.class, "frontRightDrive");
-        backLeftDrive   = hardwareMap.get(DcMotor.class, "backLeftDrive");
-        backRightDrive  = hardwareMap.get(DcMotor.class, "backRightDrive");
-
-        // To drive forward, most robots need the motor on one side to be reversed, because the axles point in opposite directions.
-        // Pushing the left and right sticks forward MUST make robot go forward. So adjust these two lines based on your first test drive.
-        // Note: The settings here assume direct drive on left and right wheels.  Gear Reduction or 90 Deg drives may require direction flips
-        frontLeftDrive.setDirection(DcMotor.Direction.REVERSE);
-        frontRightDrive.setDirection(DcMotor.Direction.FORWARD);
-        backLeftDrive.setDirection(DcMotor.Direction.REVERSE);
-        backRightDrive.setDirection(DcMotor.Direction.FORWARD);
-
-
-        // Send telemetry message to signify robot waiting;
-        telemetry.addData(">", "Robot Ready.  Press Play.");
-
-        // Wait for the game to start (driver presses PLAY)
+        //places the pixel on the line and drives back to leave pixel
         waitForStart();
-        frontLeftDrive.setPower(.5);
-        frontRightDrive.setPower(-.5);
-        backLeftDrive.setPower(-.5);
-        backRightDrive.setPower(.5);
-        sleep(100);
-        frontLeftDrive.setPower(.5);
-        frontRightDrive.setPower(.5);
-        backLeftDrive.setPower(.5);
-        backRightDrive.setPower(.5);
-        sleep(3000); //10 seconds
+        setup();
+        drive(30);
+        drive(-24);
+
+        //strafe code -- varies by autonomous
+        frontLeftDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        frontRightDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        backLeftDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        backRightDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        frontLeftDrive.setPower(-.8);
+        frontRightDrive.setPower(.8);
+        backLeftDrive.setPower(.8);
+        backRightDrive.setPower(-.8);
+
+        sleep(1500);
+
         frontLeftDrive.setPower(0);
         frontRightDrive.setPower(0);
         backLeftDrive.setPower(0);
