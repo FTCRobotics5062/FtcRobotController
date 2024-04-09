@@ -38,6 +38,7 @@ import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.Range;
 
+import org.checkerframework.checker.units.qual.Current;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 
 /*
@@ -68,6 +69,8 @@ public class drive extends OpMode{
     public DcMotor    clawAngle      = null;
     public Servo    claw             = null;
     public double      liftPosition     = 20;
+    //a boolean used to make sure the claw only rises once when moving down
+    public boolean   hasSlowedClaw   = false;
 
     public boolean   clawJustChanged  = false;
 
@@ -132,7 +135,11 @@ public class drive extends OpMode{
 
         // Send telemetry message to signify robot waiting;
         telemetry.addData(">", "Robot Ready.  Press Play.");    //`
+
+        leftLift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        leftLift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
+
 
     /*
      * Code to run REPEATEDLY after the driver hits INIT, but before they hit PLAY
@@ -161,6 +168,8 @@ public class drive extends OpMode{
      */
    // @Override
     public void loop() {
+
+        telemetry.update();
        /* //sets the robot mode
         int mode = 1;
         //field centric drive
@@ -236,10 +245,10 @@ public class drive extends OpMode{
             double turn = gamepad1.right_stick_x;
 
             //drives and turns the robot
-            frontLeftDrive.setPower((-drive + turn)*.7  );
-            frontRightDrive.setPower((-drive - turn)*.7);
-            backLeftDrive.setPower((-drive + turn)*.7);
-            backRightDrive.setPower((- drive - turn)*.7);
+            frontLeftDrive.setPower((-drive + turn)*.2  );
+            frontRightDrive.setPower((-drive - turn)*.2);
+            backLeftDrive.setPower((-drive + turn)*.2);
+            backRightDrive.setPower((- drive - turn)*.2);
         //}
         //strafing code
         double strafe = gamepad1.left_stick_x;
@@ -278,14 +287,27 @@ public class drive extends OpMode{
                 telemetry.addData("variable lift position", currentLiftPosition);
                 telemetry.addData("right Run Mode", rightLift.getMode());
                 telemetry.addData("left Run Mode", leftLift.getMode());
+                telemetry.addData("resisted claw drop: ", hasSlowedClaw);
                 telemetry.update();
+
+                //resets encoder positions if lift is down
+                int previousPosition = 0;
+                if(previousPosition != leftLift.getCurrentPosition()) {
+                    previousPosition = leftLift.getCurrentPosition();
+                }
+                else if(Math.abs(previousPosition)-300 > 0 && leftLift.getCurrentPosition() != 0){
+                    leftLift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                    leftLift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                }
+
 
                 if(Math.abs(gamepad2.left_stick_y) > .05){
                     liftState = liftState.MOVING;
-                    rightLift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-                    //leftLift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-                    rightLift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-                    //leftLift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                    hasSlowedClaw = false;
+//                    rightLift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+//                    leftLift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+//                    rightLift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+//                    leftLift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
                 }
                 break;
             case MOVING:
@@ -297,12 +319,21 @@ public class drive extends OpMode{
                 telemetry.addData("variable lift position", currentLiftPosition);
                 telemetry.addData("right Run Mode", rightLift.getMode());
                 telemetry.addData("left Run Mode", leftLift.getMode());
+                telemetry.addData("left stick position", gamepad2.left_stick_y);
+                telemetry.addData("resisted claw drop: ", hasSlowedClaw);
                 telemetry.update();
-//                rightLift.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-//                leftLift.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-                rightLift.setPower(gamepad2.left_stick_y);
-                leftLift.setPower(gamepad2.left_stick_y);
+                //runs the lift
+                //reduces lift power when it is near the top of it's reach
+                if(Math.abs(leftLift.getCurrentPosition()) >= 700){
+                    leftLift.setPower(-gamepad2.left_stick_y * -.5);
+                }
+                else{
+                    leftLift.setPower(-gamepad2.left_stick_y * -.9);
+                }
+
+
+
                 if(Math.abs(gamepad2.left_stick_y) <= .05){
                     liftState = liftState.STOPPED;
                     //currentLiftPosition = rightLift.getCurrentPosition();
@@ -311,26 +342,43 @@ public class drive extends OpMode{
                     //rightLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                     //leftLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
-                    rightLift.setPower(/*.2*/ 0);
+                    //rightLift.setPower(/*.2*/ 0);
                     leftLift.setPower(/*.2*/ 0);
 
                 }
                 break;
         }
 
+        //sends the lift opposite direction of normal when falling
+        if(Math.abs(leftLift.getCurrentPosition()) < 350 && Math.abs(leftLift.getCurrentPosition()) > 200
+                && gamepad2.left_stick_y >= -0.1 && !hasSlowedClaw){
+            leftLift.setPower(-1);
+            hasSlowedClaw = true;
+            sleep(300);
+            leftLift.setPower(0);
+        }
+        else if(Math.abs(gamepad2.left_stick_y) < .5){
+            leftLift.setPower(0);
+        }
+
         //controls the claw angle
-        clawAngle.setPower(gamepad2.right_stick_y);
+        clawAngle.setPower(gamepad2.right_stick_y * .75);
 
         //spins the claw wheels
         if(gamepad2.right_bumper/* && !clawJustChanged*/){
-            if(claw.getPosition() != .4){
+            if(claw.getPosition() != .4  ){
                 claw.setPosition(.4);
+                gamepad2.rumbleBlips(2);
                 //clawJustChanged = true;
             }
             else{
                 claw.setPosition(0);
+                gamepad2.rumbleBlips(1);
                 //clawJustChanged = true;
             }
+        }
+        if(gamepad2.a){
+            claw.setPosition(1);
         }
 
         //clawJustChanged makes claw wheels only turn when bumper is first pressed
